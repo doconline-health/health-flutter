@@ -286,6 +286,13 @@ class HealthDataReader(
         getAggregatedDistanceDelta(start, end, result)
     }
 
+    fun getTotalEnergyInInterval(call: MethodCall, result: Result) {
+        val start = call.argument<Long>("startTime")!!
+        val end = call.argument<Long>("endTime")!!
+        val recordingMethodsToFilter = call.argument<List<Int>>("recordingMethodsToFilter")!!
+
+        getAggregatedEnergyDelta(start, end, result)
+    }
     // --------- Private Methods ---------
 
     /**
@@ -296,6 +303,32 @@ class HealthDataReader(
      * @param end End time in milliseconds
      * @param result Flutter result callback returning step count
      */
+    
+    private fun getAggregatedEnergyDelta(start: Long, end: Long, result: Result) {
+        val startInstant = Instant.ofEpochMilli(start)
+        val endInstant = Instant.ofEpochMilli(end)
+
+        scope.launch {
+            try {
+                val response = healthConnectClient.aggregate(
+                    AggregateRequest(
+                        metrics = setOf(TotalCaloriesBurnedRecord.ENERGY_TOTAL),  // Sums distance values (meters)
+                        timeRangeFilter = TimeRangeFilter.between(startInstant, endInstant)
+                    )
+                )
+
+                // ENERGY_TOTAL is typically in kilocalories. Read the correct unit.
+                val energyDeltaKilocalories = response[TotalCaloriesBurnedRecord.ENERGY_TOTAL]?.inKilocalories ?: 0L
+                Log.i("HealthConnect", "Total energy delta: ${energyDeltaKilocalories}cal")
+                result.success(energyDeltaKilocalories)
+
+            } catch (e: Exception) {
+                Log.e("HealthConnect", "Failed to get distance delta: ${e.message}", e)
+                result.success(0L)
+            }
+        }
+    }
+
 
     private fun getAggregatedDistanceDelta(start: Long, end: Long, result: Result) {
         val startInstant = Instant.ofEpochMilli(start)

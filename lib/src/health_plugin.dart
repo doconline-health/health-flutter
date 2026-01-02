@@ -1483,6 +1483,27 @@ class Health {
     return distanceCount;
   }
 
+  /// Get the total number of distance within a specific time period.
+  /// Returns null if not successful.
+  Future<double?> getTotalEnergyInInterval(
+      DateTime startTime,
+      DateTime endTime, {
+        bool includeManualEntry = true,
+      }) async {
+    final args = <String, dynamic>{
+      'startTime': startTime.millisecondsSinceEpoch,
+      'endTime': endTime.millisecondsSinceEpoch,
+      'recordingMethodsToFilter': includeManualEntry
+          ? <RecordingMethod>[]
+          : [RecordingMethod.manual.toInt()],
+    };
+    final distanceCount = await _channel.invokeMethod<double?>(
+      'getTotalEnergyInInterval',
+      args,
+    );
+    return distanceCount;
+  }
+
   /// Assigns numbers to specific [HealthDataType]s.
   int _alignValue(HealthDataType type) => switch (type) {
     HealthDataType.SLEEP_IN_BED => 0,
