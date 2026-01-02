@@ -283,7 +283,7 @@ class HealthDataReader(
         val end = call.argument<Long>("endTime")!!
         val recordingMethodsToFilter = call.argument<List<Int>>("recordingMethodsToFilter")!!
 
-        getAggregatedDistanceCount(start, end, result)
+        getAggregatedDistanceDelta(start, end, result)
     }
 
     // --------- Private Methods ---------
@@ -297,7 +297,7 @@ class HealthDataReader(
      * @param result Flutter result callback returning step count
      */
 
-    private fun getAggregatedDistanceCount(start: Long, end: Long, result: Result) {
+    private fun getAggregatedDistanceDelta(start: Long, end: Long, result: Result) {
         val startInstant = Instant.ofEpochMilli(start)
         val endInstant = Instant.ofEpochMilli(end)
 
@@ -305,17 +305,17 @@ class HealthDataReader(
             try {
                 val response = healthConnectClient.aggregate(
                     AggregateRequest(
-                        metrics = setOf(DistanceRecord.COUNT_TOTAL),
+                        metrics = setOf(DistanceRecord.DISTANCE_TOTAL),  // Sums distance values (meters)
                         timeRangeFilter = TimeRangeFilter.between(startInstant, endInstant)
                     )
                 )
 
-                val distanceCount = response[DistanceRecord.COUNT_TOTAL] ?: 0L
-                Log.i("HealthConnect", "Total distance records in range: $distanceCount")
-                result.success(distanceCount)
+                val distanceDelta = response[DistanceRecord.DISTANCE_TOTAL] ?: 0L
+                Log.i("HealthConnect", "Total distance delta: ${distanceDelta}m")
+                result.success(distanceDelta)
 
             } catch (e: Exception) {
-                Log.e("HealthConnect", "Failed to get distance count: ${e.message}", e)
+                Log.e("HealthConnect", "Failed to get distance delta: ${e.message}", e)
                 result.success(0L)
             }
         }

@@ -1464,7 +1464,7 @@ class Health {
 
   /// Get the total number of distance within a specific time period.
   /// Returns null if not successful.
-  Future<int?> getTotalDistanceInInterval(
+  Future<double?> getTotalDistanceInInterval(
       DateTime startTime,
       DateTime endTime, {
         bool includeManualEntry = true,
@@ -1476,7 +1476,7 @@ class Health {
           ? <RecordingMethod>[]
           : [RecordingMethod.manual.toInt()],
     };
-    final distanceCount = await _channel.invokeMethod<int?>(
+    final distanceCount = await _channel.invokeMethod<double?>(
       'getTotalDistanceInInterval',
       args,
     );
