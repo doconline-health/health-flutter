@@ -318,9 +318,8 @@ class HealthDataReader(
                 ).first()  // Collect the first (and typically only) result from the Flow
     
                 val energyDeltaKilocalories = response[TotalCaloriesBurnedRecord.ENERGY_TOTAL]?.inKilocalories ?: 0L
-                val energyDeltaCalories = energyDeltaKilocalories * 1000L
-                Log.i("HealthConnect", "Total energy delta: ${energyDeltaCalories}cal")
-                result.success(energyDeltaCalories)
+                Log.i("HealthConnect", "Total energy delta: ${energyDeltaKilocalories}cal")
+                result.success(energyDeltaKilocalories)
     
             } catch (e: Exception) {
                 Log.e("HealthConnect", "Failed to get energy delta: ${e.message}", e)
