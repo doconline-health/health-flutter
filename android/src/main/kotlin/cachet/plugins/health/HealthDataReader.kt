@@ -307,7 +307,7 @@ class HealthDataReader(
     private fun getAggregatedEnergyDelta(start: Long, end: Long, result: Result) {
         val startInstant = Instant.ofEpochMilli(start)
         val endInstant = Instant.ofEpochMilli(end)
-
+    
         scope.launch {
             try {
                 val response = healthConnectClient.aggregate(
@@ -315,16 +315,15 @@ class HealthDataReader(
                         metrics = setOf(TotalCaloriesBurnedRecord.ENERGY_TOTAL),
                         timeRangeFilter = TimeRangeFilter.between(startInstant, endInstant)
                     )
-                )
-
-                // ENERGY_TOTAL is typically in kilocalories. Read the correct unit.
+                ).first()  // Collect the first (and typically only) result from the Flow
+    
                 val energyDeltaKilocalories = response[TotalCaloriesBurnedRecord.ENERGY_TOTAL]?.inKilocalories ?: 0L
                 val energyDeltaCalories = energyDeltaKilocalories * 1000L
-                Log.i("HealthConnect", "Total energy delta: ${energyDeltaKilocalories}cal")
+                Log.i("HealthConnect", "Total energy delta: ${energyDeltaCalories}cal")
                 result.success(energyDeltaCalories)
-
+    
             } catch (e: Exception) {
-                Log.e("HealthConnect", "Failed to get distance delta: ${e.message}", e)
+                Log.e("HealthConnect", "Failed to get energy delta: ${e.message}", e)
                 result.success(0L)
             }
         }
