@@ -318,9 +318,10 @@ class HealthDataReader(
                 )
 
                 // ENERGY_TOTAL is typically in kilocalories. Read the correct unit.
-                val energyDeltaKilocalories = (response[TotalCaloriesBurnedRecord.ENERGY_TOTAL]?.inKilocalories ?: 0L) * 1000L
+                val energyDeltaKilocalories = response[TotalCaloriesBurnedRecord.ENERGY_TOTAL]?.inKilocalories ?: 0L
+                val energyDeltaCalories = energyDeltaKilocalories * 1000L
                 Log.i("HealthConnect", "Total energy delta: ${energyDeltaKilocalories}cal")
-                result.success(energyDeltaKilocalories)
+                result.success(energyDeltaCalories)
 
             } catch (e: Exception) {
                 Log.e("HealthConnect", "Failed to get distance delta: ${e.message}", e)
