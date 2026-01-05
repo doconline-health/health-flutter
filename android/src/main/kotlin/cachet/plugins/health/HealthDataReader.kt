@@ -312,13 +312,13 @@ class HealthDataReader(
             try {
                 val response = healthConnectClient.aggregate(
                     AggregateRequest(
-                        metrics = setOf(TotalCaloriesBurnedRecord.ENERGY_TOTAL),  // Sums distance values (meters)
+                        metrics = setOf(TotalCaloriesBurnedRecord.ENERGY_TOTAL),
                         timeRangeFilter = TimeRangeFilter.between(startInstant, endInstant)
                     )
                 )
 
                 // ENERGY_TOTAL is typically in kilocalories. Read the correct unit.
-                val energyDeltaKilocalories = response[TotalCaloriesBurnedRecord.ENERGY_TOTAL]?.inKilocalories ?: 0L
+                val energyDeltaKilocalories = (response[TotalCaloriesBurnedRecord.ENERGY_TOTAL]?.inKilocalories ?: 0L) * 1000L
                 Log.i("HealthConnect", "Total energy delta: ${energyDeltaKilocalories}cal")
                 result.success(energyDeltaKilocalories)
 
